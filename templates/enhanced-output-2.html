@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOOR PLAN DETECTION</title>
+    <link rel="icon" href="\static\logomitek.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="/static/3-follow.js"></script>
+    <script type="text/javascript">  
+        function selects(){  
+            // var ele=document.getElementsByName('chk');  
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            for(var i=0; i<checkboxes.length; i++){  
+                if (checkboxes[i].disabled==false)                  
+                checkboxes[i].checked=true;  
+            }  
+        }  
+        function deSelect(){  
+            // var ele=document.getElementsByName('chk');  
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            for(var i=0; i<checkboxes.length; i++){        
+                if (checkboxes[i].disabled==false)      
+                    checkboxes[i].checked=false;          
+            }  
+        }             
+    </script>  
+
+    <script>
+        function validateForm() {
+            if (document.querySelectorAll('input[type="checkbox"]:checked').length == 0) {
+                alert("MUST SELECT AT LEAST ONE OBJECT TO DETECT");
+                return false;
+            }
+        }
+    </script>
+
+    <script>    
+        jsondata = '{{ jsondata|tojson }}'; 
+        const myObj = JSON.parse(jsondata);  
+
+        function enableDisable(lst) {     
+            const objects_set = new Set(lst)
+            for (const x of objects_set.values()) {
+               
+                document.getElementById(x).checked=true;
+                document.getElementById(x).disabled=false;    
+                document.getElementsByName(x)[0].style.color='#8dff00';
+                document.getElementsByName(x)[0].style.fontWeight = 500;
+            }   
+            
+        }            
+    </script>
+
+
+    <style>
+        .flex-parent {
+        display: flex;
+        }
+
+        .jc-center {
+        justify-content: center;
+
+        }
+        input{
+            margin-right: 5px;
+            border-radius: 5px;
+        }
+        label{
+            color: #666;
+            margin-right: 20px;
+        }
+        .display-8{
+            color:whitesmoke;
+            white-space: nowrap;
+            margin-top: 5px;
+        }
+        #zoom-img {
+            width: 100%;
+            height: 90%;
+            background-image: url(/static/display/test.jpg);
+            background-position: center;
+            background-size: cover;
+        }
+        .enabled {
+            color: #8dff00;
+            font-weight: 500;
+        }
+        .disabled {
+            color: #666;
+        }
+        .card {
+        width: 100%;
+        height: 90%; 
+        position: relative;
+        display: inline-block;
+        }
+        .card .img-top {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 99;
+        }
+        .card:hover .img-top {
+            display: inline;
+        }
+    </style>
+</head>
+<body onload="enableDisable(myObj)" style="background-color:#181818">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+        $('input[name="original-box"]').on('change', function () {
+            var checkval = $(this).is(':checked');
+            if (checkval == true) {
+                $('label[for="original-box"]').removeClass('disabled');
+                $('label[for="original-box"]').addClass('enabled');
+                // $('#Reservation-Style').prop('disabled', false);
+                // $('label[for="Number-Permits-Needed"]').removeClass('disabled');
+                // $('#Number-Permits-Needed').prop('disabled', false);
+            } else {
+                $('label[for="original-box"]').removeClass('enabled');
+                $('label[for="original-box"]').addClass('disabled');
+                // $('#Reservation-Style').prop('disabled', 'disabled');
+                // $('label[for="Number-Permits-Needed"]').addClass('disabled');
+                // $('#Number-Permits-Needed').prop('disabled', 'disabled');
+            }
+        });
+    });
+    </script>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <br>
+                <h3 class="display-8">ORIGINAL IMAGE/PREPROCESSED IMAGE</h3>
+                <div class="card">
+                    <img src="/static/display/demo.jpg" class="image-fluid" width="100%" height="100%">
+                    <img src="/static/display/preprocessed.jpg" class="img-top image-fluid" width="100%" height="100%">
+                </div>             
+                <!-- <div class="card image-fluid"></div> -->
+            </div>
+            <div class="col">
+                <br>
+                <h3 class="display-8"> AI DETECTED RESULT</h3>                
+                <div id="zoom-img"></div>    
+            </div>   
+              
+        </div> 
+        <br>   
+        <div class="flex-parent jc-center" >        
+            <form method="post"  action="/enhanced-output-2" onsubmit="return validateForm()">
+                <div class="row"  >
+                    <div class="col">
+                        <div class="flex-parent jc-center" > 
+                            <h4 class="display-8"> Door-2Door-Window</h4>
+                        </div>                        
+                        <div class="flex-parent jc-center" >
+                            <input type="checkbox" name="object" value = "door" id="door" disabled>                          
+                            <label for="door" name='door' > door</label><br>
+        
+                            <input type="checkbox" name="object" value="2door" id="2door" disabled>
+                            <label for="2door" name="2door"> 2door</label><br>
+        
+                            <input type="checkbox" name="object" value="window1" id="window1" disabled>
+                            <label for="window1" name="window1"> window1</label><br>
+        
+                            <input type="checkbox" name="object" value="window2" id="window2" disabled>
+                            <label for="window2" name="window2"> window2</label><br>
+        
+                            <input type="checkbox" name="object" value="baywindow" id="baywindow" disabled>
+                            <label for="baywindow" name="baywindow"> baywindow</label><br>
+        
+                            <input type="checkbox" name="object" value="window4" id="window4" disabled>
+                            <label for="window4" name="window4"> window4</label><br>
+        
+                            <input type="checkbox" name="object" value="window5" id="window5" disabled>
+                            <label for="window5" name="window5"> window5</label><br>
+        
+                            <input type="checkbox" name="object" value="window6" id="window6" disabled>
+                            <label for="window6" name="window6"> window6</label><br>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="row">
+                        <div class="flex-parent jc-center" style="margin-top: 5px;">
+                            <h4 class="display-8"> Wall</h4>
+                        </div>
+                        
+                        <div class="flex-parent jc-center" >
+                            
+                        
+                            <input type="checkbox" name="object" value="black_wall" id="black_wall" disabled>
+                            <label for="blackwall" name="black_wall">blackwall</label><br>
+                
+                            <input type="checkbox" name="object" value="white_wall" id="white_wall" disabled>
+                            <label for="whitewall" name="white_wall">whitewall</label><br>
+                
+                            <input type="checkbox" name="object" value="grey_wall" id="grey_wall" disabled>
+                            <label for="greywall" name="grey_wall">greywall</label><br>
+                
+                            <input type="checkbox" name="object" value="cross_wall" id="cross_wall" disabled>
+                            <label for="crosswall" name="cross_wall"> crosswall</label>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="row">
+                    <div class="flex-parent jc-center" > 
+                        <h4 class="display-8">Original</h4>
+                    </div>                
+                    <div class="flex-parent jc-center" >                                            
+                        <input type="checkbox" name="original-box" value="YES" id="original-box" checked>
+                        <label for="original-box" name="original-label" class="enabled">YES</label><br>                          
+                    </div>
+                </div>                   -->
+                <div class="flex-parent jc-center" style="margin-top: 5px;">
+                    <input type="button" onclick='selects()' value="Select All"/>  
+                    <input type="button" onclick='deSelect()' value="Deselect All"/>                    
+                </div>
+                <div class="flex-parent jc-center" style="margin-top: 10px;">                    
+                    <input type="submit" value="Submit">
+                  
+                </div>
+                <br>
+
+            </form>
+            <form style="display: grid;">
+                <button type="submit" formaction="/" style="margin: auto; width: 100px; height: 100px; border-radius: 50px;" >Home</button>
+            </form>             
+        </div>              
+    </div>
+</body>
+</html>
