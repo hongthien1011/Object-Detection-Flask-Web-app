@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOOR PLAN DETECTION</title>
+    <link rel="icon" href="\static\logomitek.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    
+    <script>
+        var data = JSON.parse('{{ listPreprocessing | tojson | safe}}');
+    </script>
+    <script>             
+        function enableDisable(lst) {  
+            for (x of lst.values()) {         
+                document.getElementById(x).checked=true;               
+            }             
+        }            
+    </script>
+
+    <style>
+        .display-8{
+            color:whitesmoke;
+            white-space: nowrap;
+        }
+        label{
+            margin-left: 30px;
+            color: whitesmoke;
+            
+        }
+        :checked + span {
+            color: #25a4f8;
+            font-weight: bold;
+        }
+        .card {
+        width: 100%;
+        height: 95%; 
+        position: relative;
+        display: inline-block;
+        }
+        .card .img-top {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 99;
+        }
+        .card:hover .img-top {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body onload=enableDisable(data) style="background-color:#181818">
+    <div class="container-fluid">
+        <div class="row" style="margin-left: 1%; margin-right: 1%;">
+            <div class="col">
+                <br>
+                <h3 class="display-8" >FLOOR PLAN DETECTION PROJECT</h3>
+                <br>
+                <form method="POST" enctype="multipart/form-data">               
+                    <div class="row" >
+                        <h4 class="display-8">Noise Reduction</h4>                                                                                                            
+                        <label>
+                            <input type="checkbox" name="preprocessing" value="gauss" id="gauss">
+                            <span>Gauss (Recommend for picture taken with a mobile phone)</span> 
+                        </label> 
+                        <label>
+                            <input type="checkbox" name="preprocessing" value="poisson" id="poisson">
+                            <span>Poisson (Recommend for picture too bright or too dark)</span>
+                        </label>                            
+                                                                                               
+                        <h4 class="display-8">Sharpen</h4>                                                                                                                  
+                        <label>
+                            <input type="checkbox" name="preprocessing" value="sharpen" id="sharpen" >
+                            <span>YES (Make image sharper)</span>
+                        </label>                       
+
+                        <h4 class="display-8">Contrast</h4>                                                                                                                     
+                        <label for="contrast" name="preprocessing-box">
+                            <input type="checkbox" name="preprocessing" value="contrast" id="contrast" >
+                            <span>YES (Enhence contrast)</span> 
+                        </label> 
+                            
+                        <h4 class="display-8">Geometric Transformation</h4>                                                                                                                            
+                        <label>
+                            <input type="checkbox" name="preprocessing" value="geometric" id="geometric">
+                            <span>YES</span>
+                        </label>
+                    </div>
+                    <br> 
+                    <div>
+                        <input type="submit" formaction="/preview_preprocessing" value="Apply"class="btn btn-outline-primary" style="margin-left: 19%;">                                        
+                     
+                        <div >
+                            <br>
+                            <button type="submit" formaction="/" class="btn btn-outline-primary" style="margin-left: 1%">Home</button>
+                            <input type="submit" formaction="/enhanced-output-1" value="Submit"  style="margin-left: 28%;" class="btn btn-outline-primary">                         
+                        </div> 
+                    </div>                                     
+                </form>
+            </div>
+            <div class="col" >
+                <br>
+                <div class="card">
+                    <img src="/static/display/preprocessed.jpg" class="image-fluid" width="100%" height="100%" style="max-height: 950px;">
+                    <img src="/static/display/original.jpg" class="img-top image-fluid" width="100%" height="100%" style="max-height: 950px;">
+                </div>  
+            </div>                                   
+        </div>       
+    </div>
+</body>
+</html>
+
+                    

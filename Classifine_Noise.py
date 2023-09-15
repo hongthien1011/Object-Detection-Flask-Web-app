@@ -58,58 +58,13 @@ def warp_Perspective(img):
         imgWarpColored = img
     return imgWarpColored
 
-
-
-
-
-
-
-
-
-def is_noisy(image):
-    # Gaussian noise check
-    diff_gauss = cv2.absdiff(image, cv2.GaussianBlur(image, (5, 5), 0))
-    mean_diff_gauss = np.mean(diff_gauss)
-    is_noisy_gauss = mean_diff_gauss > 10  # Adjust this threshold as needed
-    
-    # Salt & Pepper noise check
-    num_black_pixels = np.sum(image == 0)
-    num_white_pixels = np.sum(image == 255)
-    total_pixels = image.shape[0] * image.shape[1]
-    ratio_black = num_black_pixels / total_pixels
-    ratio_white = num_white_pixels / total_pixels
-    is_noisy_sp = ratio_black > 0.02 or ratio_white > 0.02
-    
-    # Poisson noise check
-    poisson_var = np.var(image)
-    is_noisy_poisson = poisson_var > 5  # Adjust this threshold as needed
-    
-    # Speckle noise check
-    diff_speckle = cv2.absdiff(image, cv2.GaussianBlur(image, (5, 5), 0))
-    mean_diff_speckle = np.mean(diff_speckle)
-    is_noisy_speckle = mean_diff_speckle > 10  # Adjust this threshold as needed
-    
-    return {
-        'gauss': is_noisy_gauss,
-        's&p': is_noisy_sp,
-        'poisson': is_noisy_poisson,
-        'speckle': is_noisy_speckle
-    }
-
 def apply_noise(image, noise_type):
     if noise_type == 'gauss':
         denoised_image = cv2.GaussianBlur(image, (5, 5), 0)
         return denoised_image
-    elif noise_type == 's&p':
-        # Áp dụng Median blur để loại bỏ nhiễu muối tiêu
-        denoised_image = cv2.medianBlur(image, 5)
-        return image
-    elif noise_type == 'speckle':
-        # Áp dụng bộ lọc trung bình
-        denoised_image = cv2.medianBlur(image, 5)  # Thay số 5 bằng kích thước kernel bạn muốn sử dụng
-        return denoised_image
+    
     elif noise_type == 'poisson':
-        denoised_image = cv2.fastNlMeansDenoising(image, None, h=10)
+        denoised_image = cv2.fastNlMeansDenoising(image, None, h=5)
         return denoised_image
     else:
         noisy_image = image
@@ -123,44 +78,42 @@ def unsharp_masking(image, kernel_size=(5, 5), sigma=1.0, amount=1.0, threshold=
     return sharpened
 
 
-def PrePocessing(input_path):
+def PrePocessing(input_path, listPreprocessing):
     #Load Image
     input_path = input_path
     image = cv2.imread(input_path)
-    image = warp_Perspective(image)
-   # copy anh image sau do return ra image do
-    org_image = image.copy()
+    if len(listPreprocessing) == 0 :
+        display_image = image.copy()
+        return display_image, image
+    else: 
+        if "geometric" in listPreprocessing:
+            image = warp_Perspective(image)
+            print('Done geometric')
+            
+        # copy anh image sau do return ra image do
+        display_image = image.copy()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        if "contrast" in listPreprocessing:
+            #Improve Contrast
+            image[image > 175] = 255
+            image[image < 125] = 0
+            print('Done Improve Contrast')
 
-
-    #Improve Contrast
-    white_mask = image >= 200
-    dark_mask = image <= 100
-    image = np.where(white_mask, 255, np.where(dark_mask, 0, image))
-    print('Done Improve Contrast')
-
-    #Check Noise
-    noise_dict = is_noisy(image)
-    print(noise_dict)
-
-    #Noise Reduction
-    for noise_type, apply in noise_dict.items():
-        if apply:
-            noisy_image = apply_noise(image, noise_type)
+        #Noise Reduction  
+        if "gauss" in listPreprocessing:
+            noisy_image = apply_noise(image, "gauss")
             image = noisy_image
-    print('Done noise Reduction')
+            print('Done Gauss noise reduction')
 
-    #Resize Image
-    H, W, c = image.shape
+        if "poisson" in listPreprocessing:
+            noisy_image = apply_noise(image, "poisson")
+            image = noisy_image
+            print('Done Poisson noise Reduction')
 
-    if max(H, W) > 1280:
-        if H > W:
-            image = cv2.resize(image, (int(W * 1280 / H), 1280))
-        else:
-            image = cv2.resize(image, (1280, int(H * 1280 / W)))
-        # Save the resized image
-    print('Done Resize image')
-
-    # Sharpening Image
-    image = unsharp_masking(image, kernel_size=(3, 3), sigma=0.5, amount=0.5, threshold=0)
-    return org_image,image
+            # Sharpening Image
+        if "sharpen" in listPreprocessing:
+            image = unsharp_masking(image, kernel_size=(9, 9), sigma=1, amount=1, threshold=0)
+            print('Done sharpening')
+    
+        return display_image, image
 

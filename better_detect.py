@@ -6,17 +6,19 @@ from Classifine_Noise import PrePocessing
 from PIL import Image as im
 import os
 
-def onetotwoimage(path):
+def onetotwoimage(path, listPreprocessing):
     PROCSESS_FOLDER = r'./static/display'
     # image1 = cv2.imread(image_path1)
-    image1, image2 = PrePocessing(path)
+    image1, image2 = PrePocessing(path, listPreprocessing)
+    image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
+    image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
     data1 = im.fromarray(image1)
     data1.save(os.path.join(PROCSESS_FOLDER,"display.jpg"))
     data2 = im.fromarray(image2)
     data2.save(os.path.join(PROCSESS_FOLDER,"preprocessed.jpg"))
-    image1 = cv2.imread(os.path.join(PROCSESS_FOLDER,"display.jpg"))
-    image2 = cv2.imread(os.path.join(PROCSESS_FOLDER,"preprocessed.jpg"))
-    return image1, image2
+    # image1 = cv2.imread(os.path.join(PROCSESS_FOLDER,"display.jpg"))
+    # image2 = cv2.imread(os.path.join(PROCSESS_FOLDER,"preprocessed.jpg"))
+    # return image1, image2
 
 # Apply NMS to response_data1 and response_data2 bounding boxes
 def apply_nms(annotations, overlap_threshold=0.9):
@@ -30,7 +32,9 @@ def apply_nms(annotations, overlap_threshold=0.9):
     selected_annotations = [annotations[i] for i in indices]
     return selected_annotations
 
-def getjson(image1,image2,url= 'http://10.182.220.134:8000/detection/img_object_detection_to_json'):
+def getjson(image1,image2):
+    # url = 'http://10.182.220.134:8000/detection/img_object_detection_to_json'
+    url = "http://10.182.220.137:8000/detection/img_object_detection_to_json"
     # Convert the image to base64
     _, img_encoded = cv2.imencode('.jpg', image1)
     image_base641 = img_encoded.tobytes()
@@ -88,4 +92,41 @@ def better_detect_on_preprocessed_image(image_path1, image_path2):
     response = getjson(image1, image2)
     return response
     
+# def combine_json(org_json,crop_json):
+#     class_name = ['window1','window2','window4','baywindow','window5','window6']
+#     print(crop_json)
+#     crop_json = [obj for obj in crop_json['detect_objects'] if obj['name'] in class_name]
     
+#     combined_response_data = {
+#     'detect_objects': org_json['detect_objects'] + crop_json['detect_objects'],
+#     'detect_objects_names': org_json['detect_objects_names'] + crop_json['detect_objects_names']
+# }
+
+#     nms_annotations1 = apply_nms(combined_response_data['detect_objects'])
+#     nms_annotation_names1 = [combined_response_data['detect_objects_names'][combined_response_data['detect_objects'].index(annotation)] for annotation in nms_annotations1]
+#     nms_data1 = {
+#         'detect_objects': nms_annotations1,
+#         'detect_objects_names': nms_annotation_names1
+#     }
+    
+#     return nms_data1
+
+def combine_json(org_json, crop_json):
+    class_name = ['window1', 'window2', 'window4', 'baywindow', 'window5', 'window6'] 
+    # Filter annotations in crop_json based on class names 
+    crop_json_filtered_annotations = [obj for obj in crop_json['detect_objects'] if obj['name'] in class_name] 
+    # Extract the corresponding names for the filtered annotations 
+    crop_json_filtered_names = [name for name in crop_json['detect_objects_names'] if name in class_name] 
+    combined_response_data = { 'detect_objects': org_json['detect_objects'] + crop_json_filtered_annotations, 
+                              'detect_objects_names': org_json['detect_objects_names'] + crop_json_filtered_names } 
+
+    # Apply NMS to combined annotations
+    nms_annotations1 = apply_nms(combined_response_data['detect_objects'])
+    # Get the names corresponding to the selected annotations
+    nms_annotation_names1 = [combined_response_data['detect_objects_names'][combined_response_data['detect_objects'].index(annotation)] for annotation in nms_annotations1] 
+    nms_data1 = {
+        'detect_objects': nms_annotations1,
+        'detect_objects_names': nms_annotation_names1
+    }
+    return nms_data1
+

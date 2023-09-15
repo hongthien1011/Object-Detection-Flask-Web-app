@@ -17,7 +17,7 @@ def add_bboxs_on_img(image: Image, predict: pd.DataFrame()) -> Image:
     """
     # Create an annotator object
 
-    annotator = Annotator(np.array(image), line_width=None, font_size=20, pil=True)
+    annotator = Annotator(np.array(image), line_width=4, font_size=20, pil=True)
     # sort predict by xmin value
     predict = predict.sort_values(by=['xmin'], ascending=True)
     # iterate over the rows of predict dataframe
