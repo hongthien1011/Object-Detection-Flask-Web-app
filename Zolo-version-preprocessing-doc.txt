@@ -1,0 +1,99 @@
+Zolov1(yolov8x.yaml): 
+- DATA: Floor_plan.v13i.yolov8
+- PREPROCESSING
+	Auto-Orient: Applied
+	Resize: Fit (reflect edges) in 640x640
+	Grayscale: Applied
+- AUGMENTATIONS	
+	Flip: Horizontal, Vertical 
+	90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+	
+Zolov2(yolov8m.yaml): 
+- DATA: D:\Floor_plan.v14i.yolov8
+- PREPROCESSING
+	Auto-Orient: Applied
+	Resize: Fit (reflect edges) in 640x640
+	Grayscale: Applied
+- AUGMENTATIONS
+	Flip: Horizontal, Vertical 
+	90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+	Rotation: Between -45° and +45°
+	Noise: Up to 5% of pixels
+
+Zolov3(yolov8m.pt): 
+- DATA: D:\Phase2\Phase2Data-DoorWindow2Door.v5i.yolov8
+- PREPROCESSING	
+	Auto-Orient: Applied
+	Resize: Stretch to 640x640
+- AUGMENTATIONS
+	Flip: Horizontal, Vertical
+	90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+	Rotation: Between -45° and +45°
+	Blur: Up to 2px
+
+Zolov4(yolov8x.pt): 
+- DATA: D:\Phase2\Phase2Data-DoorWindow2Door.v5i.yolov8
+- PREPROCESSING	
+	Auto-Orient: Applied
+	Resize: Stretch to 640x640
+- AUGMENTATIONS
+	Flip: Horizontal, Vertical
+	90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+	Rotation: Between -45° and +45°
+	Blur: Up to 2px
+
+Zolov5.3(yolov8m.pt):
+	- DATA: D:\Phase3\doorwindow2door-2.v2i.yolov8
+	- PREPROCESSING	
+		Auto-Orient: Applied
+		Resize: Fit (white edges) in 640x640
+	- AUGMENTATIONS
+		Outputs per training example: 3
+		Flip: Horizontal, Vertical
+		90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+		Rotation: Between -45° and +45°
+		Shear: ±15° Horizontal, ±15° Vertical
+		Blur: Up to 1px
+
+Zolov5.4:
+	(include test data for training, no resize 640, apply gray scale)
+	- DATA: D:\Phase3\doorwindow2door-2.v17i.yolov8 
+	- PREPROCESSING	
+		Auto-Orient: Applied
+		Grayscale: Applied		
+	- AUGMENTATIONS
+		Flip: Horizontal, Vertical
+		90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+		Rotation: Between -20° and +20°
+		Shear: ±8° Horizontal, ±8° Vertical
+		Blur: Up to 1px
+		Mosaic: Applied
+
+WALL	
+	- DATA: D:\Phase3\Floor_plan_wall_only.v14i.yolov8
+	- PREPROCESSING	
+		Auto-Orient: Applied
+		Grayscale: Applied
+		Modify Classes: 0 remapped, 1 dropped
+		Filter Null: Require all images to contain annotations.
+	- AUGMENTATIONS
+		Outputs per training example: 3
+		Flip: Horizontal, Vertical
+		90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+		Rotation: Between -6° and +6°
+		Shear: ±5° Horizontal, ±5° Vertical
+		Blur: Up to 0.5px
+
+	- DATA: D:\Phase3\Floor_plan_wall_only.v15i.yolov8
+	- PREPROCESSING	
+		Auto-Orient: Applied
+		Grayscale: Applied
+		Modify Classes: 0 remapped, 1 dropped
+		Filter Null: Require all images to contain annotations.
+	- AUGMENTATIONS
+		Outputs per training example: 3
+		Flip: Horizontal, Vertical
+		90° Rotate: Clockwise, Counter-Clockwise, Upside Down
+		Rotation: Between -7° and +7°
+		Shear: ±5° Horizontal, ±5° Vertical
+		Blur: Up to 0.5px
